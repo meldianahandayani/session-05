@@ -12,77 +12,78 @@
 
     <div>
       <form onsubmit="return handleSubmit(event)" class="d-flex gap-4">
-        <input type="text" class="form-control" id="new-todo" placeholder="Input your task">
+        <input type="text" class="form-control" id="new-todo" placeholder="Input your task" required>
         <input type="submit" class="btn btn-primary" value="Add">
       </form>
     </div>
 
     <ul id="list-todo" class="list-group mt-4">
-      <!-- <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-          <input class="form-check-input me-1" type="checkbox" value="" id="firstCheckbox">
-          <label class="form-check-label" for="firstCheckbox">First checkbox</label>
-        </div>
-        <button class="btn btn-danger">Delete</button>
-      </li> -->
     </ul>
-
   </div>
-  
-  
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+  integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script>
-   function handleSubmit(event) {
-    event.preventDefault()
+    function handleSubmit(event) {
+      event.preventDefault(); 
+      const newTodo = document.getElementById("new-todo").value.trim();
+      if (!newTodo) {
+        alert("Please enter a task.");
+        return; 
+      }
 
-    const newTodo = document.getElementById("new-todo").value
-
-    let todos = JSON.parse(localStorage.getItem("todos"))
-
-    if (todos) {
+      let todos = JSON.parse(localStorage.getItem("todos")) || []; 
+      const newId = todos.length > 0 ? todos[todos.length - 1].id + 1 : 0;
       todos.push({
-        id: todos[todos.length - 1].id + 1,
+        id: newId,
         name: newTodo,
         checked: false
-      })
-    } else {
-      todos = [{
-        id: 0,
-        name: newTodo,
-        checked: false
-      }]
+      });
+
+      localStorage.setItem("todos", JSON.stringify(todos)); 
+
+      document.getElementById("new-todo").value = ""; 
+
+      displayTodo(); 
     }
 
-    localStorage.setItem("todos", JSON.stringify(todos))
+    function displayTodo() {
+      let todos = JSON.parse(localStorage.getItem("todos")) || []; 
 
-    document.getElementById("new-todo").value = ""
+      let list = "";
 
-    displayTodo()
+      if (todos.length > 0) {
+        todos.forEach(item => {
+          list += `
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <input class="form-check-input me-1" type="checkbox" value="" id="checkbox-${item.id}" ${item.checked ? "checked" : ""} onclick="toggleChecked(${item.id})">
+                <label class="form-check-label" for="checkbox-${item.id}">${item.name}</label>
+              </div>
+              <button class="btn btn-danger" id="delete-${item.id}" onclick="deleteTodo(${item.id})">Delete</button>
+            </li>
+          `;
+        });
+      }
 
-   }
-
-   function displayTodo() {
-    let todos = JSON.parse(localStorage.getItem("todos"))
-
-    let list = ""
-    
-    if (todos) {
-      todos.forEach((item, idx) => {
-        list = list + `
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <input class="form-check-input me-1" type="checkbox" value="" id=${item.id}>
-              <label class="form-check-label" for=${item.id}>${item.name}</label>
-            </div>
-            <button class="btn btn-danger" id=${"delete-"+item.id}>Delete</button>
-          </li>
-
-        `
-      })
+      document.getElementById("list-todo").innerHTML = list; 
     }
 
-    document.getElementById("list-todo").innerHTML = list
-   }
+    function toggleChecked(id) {
+      let todos = JSON.parse(localStorage.getItem("todos"));
+      const todo = todos.find(item => item.id === id);
+      if (todo) {
+        todo.checked = !todo.checked;
+        localStorage.setItem("todos", JSON.stringify(todos));
+        displayTodo(); 
+      }
+    }
+
+    function deleteTodo(id) {
+      let todos = JSON.parse(localStorage.getItem("todos"));
+      todos = todos.filter(item => item.id !== id);
+      localStorage.setItem("todos", JSON.stringify(todos)); 
+      displayTodo(); 
+    }
   </script>
 </body>
 </html>

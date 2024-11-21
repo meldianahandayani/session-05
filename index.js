@@ -28,11 +28,11 @@
 // console.log(emailPola.test(email));
 
 
-let age = 20
+//let age = 20
 
-age += 10
+//age += 10
 
-console.log(age);
+//console.log(age);
 
 
 
